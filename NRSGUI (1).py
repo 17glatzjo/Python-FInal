@@ -430,6 +430,38 @@ a simulation so part of the fun is learning the mechanics on your own!"""
     def endScreen(self):
         print('DEBUG: Game over.')
         #print out game statistics, add in a profit/losses metric based on power generated and ending damage
+        Profit = 0.00
+        Losses = 0.00
+        DamageCost = 0.00
+        TrueLosses = 0.00
+        TrueProfit = 0.00
+
+        Profit = self.rState['totalOutput'] * 1000 * 0.14
+        Losses = (100 - self.rState['fuel']) * 1000
+        if(self.rState['damage'] < 100):
+            DamageCost = self.rState['damage'] * 1000
+        else:
+            DamageCost = 2000000000
+        TrueLosses = Losses + DamageCost
+        TrueProfit = Profit - TrueLosses
+        
+        endScreenStr = str(
+
+        'Days Total Completed = ' + self.rState['day']
+        
+        + 'Total Power Generated = ' + format(self.rState['totalOutput'], '.3f') + ' MWe'
+        
+        + 'Ending Damage Percentage = ' + self.rState['damage'] + ' %'
+        
+        + 'Profit = $' + format(Profit, '.2f')
+        
+        + 'Losses = $' + format(TrueLosses, '.2f')
+        
+        + 'True Profit = $' + format(TrueProfit, '.2f')
+
+        )
+        
+        gui.messagebox.showinfo(title='Statistics', message=endScreenStr);
 
 def main():
     validInput = False
