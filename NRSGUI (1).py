@@ -1,7 +1,7 @@
 """
 CSC308 Term Project: Python PWR Sim GUI
 Johnathon Glatz, Shawn Carl, Dalton Obitko
-4/25/2021 - v0.85
+4/25/2021 - v0.9
 """
 """
 Description: Basic simulation game for an older generation pressurized
@@ -166,40 +166,57 @@ class PWRSim():
     def helpscreen(self):
         helpStr = """
 Welcome to the Python Pressurized Water Reactor Simulator!
+
 At the top of the GUI is a black box. You might see some red
 text here. These are annunciators or warning lights for the
 power plant. Ideally, you want these all to disappear (except
-the "OVER POWER LIMIT" light). That one is actually a good sign
-if you aren't overheating the plant. You should also see 4 gray
-buttons on the right. The SCRAM button, short for "Safety Rod
-Axe Man" if you're a fan of Enrico Fermi, is a last ditch, fast
-method to shut down a fission reactor. In the real world this
-would plunge the control rods and likely inject a neutron poison
-such as boron into the coolant. In the sim it is simply a way to
-end game at any time you wish. The damage control button is used
-dispatch damage control teams to slowly repair the plant as long
-as the reactor temperature remains below 212F. This may be neccessary
-if you are playing a long game and trying for a high power output.
-The help button get you to this screen and the next day button simply
-advances the day count forward and calculates the new plant state.
-Directly under the black annunciator panel is 4 text entry fields.
-These are where you set the control input for the reactor control
-rods, primary coolant, secondary coolant, and emergency coolant.
-All of thesemust be integer values between 0 and 100. The control rods
-are the reactor's neutron moderators. A higher value means less
-control rod in the reactor, thus less moderation and a higher heat
-output. The energy in the plant flows from reactor to condensor through
-the exchangers via coolant. More coolant flow means more energy travel.
-Ideally, all of the reactors heat should be taken up by the exchangers,
-driving the generators. Any heat in the condensors is wasted energy.
-The term "Emergency Coolant" is somewhat of a misnomer. In the real world
-emergency coolant tanks are not only used in emergencies but also in the
-daily operation of the plant to refill the coolant loop to account for
-leaks. As this game does not simulate coolant levels or leaks, you may
-instead use it as a backup to the primary coolant if you must pull
-more heat out of the reactor than the primary loop can sustain. This
-should be all you need to get the reactor going. Remember, it is only
-a simulation so part of the fun is learning the mechanics on your own!"""
+the "OVER POWER LIMIT" light). That one is actually a good
+sign if you aren't overheating the plant. You should also see 4
+gray buttons on the right. The SCRAM button, short for
+"Safety Rod Axe Man" if you're a fan of Enrico Fermi, is a last
+ditch, fast method to shut down a fission reactor.
+
+In the real world this would plunge the control rods and likely
+inject a neutron poison such as boron into the coolant. In the
+sim it is simply a way to end game at any time you wish.
+
+The damage control button is used to dispatch damage
+control teams to slowly repair the plant as long as the
+reactor temperature remains below 212F. This may be
+neccessary if you are playing a long game and trying for a
+high power output.
+
+The help button get you to this screen and the next day
+button simply advances the day count forward and calculates
+the new plant state.
+
+Directly under the black annunciator panel is 4 text entry
+fields. These are where you set the control input for the
+reactor control rods, primary coolant, secondary coolant,
+and emergency coolant.
+All of these must be integer values between 0 and 100.
+
+The control rods are the reactor's neutron moderators. A
+higher value means less control rod in the reactor, thus less
+moderation and a higher heat output. The energy in the plant
+flows from reactor to condensor through the exchangers via coolant.
+More coolant flow means more energy travel.
+
+Ideally, all of the reactors heat should be taken up by the
+exchangers, driving the generators. Any heat in the condensors
+is wasted energy.
+
+The term "Emergency Coolant" is somewhat of a misnomer. In
+the real world emergency coolant tanks are not only used in
+emergencies but also in the daily operation of the plant to
+refill the coolant loop to account for leaks.
+
+As this game does not simulate coolant levels or leaks, you
+may instead use it as a backup to the primary coolant if you
+must pull more heat out of the reactor than the primary loop can sustain.
+This should be all you need to get the reactor going.
+
+Remember, it is only a simulation so part of the fun is learning the mechanics on your own!"""
         gui.messagebox.showinfo(title='Help', message=str(helpStr));
 
     def updateEntries(self):    #return True on success, False for bad values
@@ -428,13 +445,12 @@ a simulation so part of the fun is learning the mechanics on your own!"""
                 gui.messagebox.showinfo(title='Core temperatures too high', message='Reactor core temperatures are too high to send in the repair crews. Lower temperatures to <212F and try again.')
 
     def endScreen(self):
-        print('DEBUG: Game over.')
         #print out game statistics, add in a profit/losses metric based on power generated and ending damage
         Profit = 0.00
         Losses = 0.00
         DamageCost = 0.00
         TrueLosses = 0.00
-        TrueProfit = 0.00
+        TrueProfit = 0.00   #divide cash amounts out to millions
 
         Profit = self.rState['totalOutput'] * 1000 * 0.14
         Losses = (100 - self.rState['fuel']) * 1000
@@ -442,27 +458,27 @@ a simulation so part of the fun is learning the mechanics on your own!"""
             DamageCost = self.rState['damage'] * 1000
         else:
             DamageCost = 2000000000
-        TrueLosses = Losses + DamageCost
-        TrueProfit = Profit - TrueLosses
+        TrueLosses = (Losses + DamageCost)
+        TrueProfit = (Profit - TrueLosses)  
         
         endScreenStr = str(
 
-        'Days Total Completed = ' + self.rState['day']
+        'Days Total Completed = ' + str(self.rState['day'])
         
-        + 'Total Power Generated = ' + format(self.rState['totalOutput'], '.3f') + ' MWe'
+        + '\nTotal Power Generated = ' + format(self.rState['totalOutput'], '.3f') + ' MWe'
         
-        + 'Ending Damage Percentage = ' + self.rState['damage'] + ' %'
+        + '\nEnding Damage Percentage = ' + str(self.rState['damage']) + ' %'
         
-        + 'Profit = $' + format(Profit, '.2f')
+        + '\nProfit = $' + format((Profit/1000000), '.2f') + 'Mil'
         
-        + 'Losses = $' + format(TrueLosses, '.2f')
+        + '\nLosses = $' + format((TrueLosses/1000000), '.2f') + 'Mil'
         
-        + 'True Profit = $' + format(TrueProfit, '.2f')
+        + '\nTrue Profit = $' + format((TrueProfit/1000000), '.2f') + 'Mil'
 
         )
         
         gui.messagebox.showinfo(title='Statistics', message=endScreenStr);
-
+        
 def main():
     validInput = False
     gameLength = 100
